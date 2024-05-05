@@ -13,6 +13,7 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -41,25 +42,31 @@ public class WebSecurity {
         //Create authenticationFilter
         AuthenticationFilter authenticationFilter = new AuthenticationFilter(usersService, environment, authenticationManager);
         authenticationFilter.setFilterProcessesUrl(environment.getProperty("login.url.path"));
-        IpAddressMatcher hasIpAddress = new IpAddressMatcher(Objects.requireNonNull(environment.getProperty("gateway.ipv4")));
-        IpAddressMatcher hasIpv4Address = new IpAddressMatcher(Objects.requireNonNull(environment.getProperty("gateway.ip")));
-
-        http.csrf((csrf) -> csrf.disable());
+//        IpAddressMatcher hasIpAddress = new IpAddressMatcher(Objects.requireNonNull(environment.getProperty("gateway.ipv4")));
+//        IpAddressMatcher hasIpv4Address = new IpAddressMatcher(Objects.requireNonNull(environment.getProperty("gateway.ip")));
+//
+//        http.csrf((csrf) -> csrf.disable());
+//        http.authorizeHttpRequests((auth) -> auth
+//                        .requestMatchers(new AntPathRequestMatcher(" /users/status/check")).permitAll()
+//                        .requestMatchers(new AntPathRequestMatcher("/**"))
+//                        .access((authentication, context) -> {
+//                            if(hasIpAddress.matches(context.getRequest()))
+//                                return new AuthorizationDecision(
+//                                        hasIpAddress.matches(context.getRequest()));
+//                            return new AuthorizationDecision(
+//                                    hasIpv4Address.matches(context.getRequest()));
+//                        }))
+//                .addFilter(authenticationFilter)
+//                .authenticationManager(authenticationManager)
+//                .sessionManagement((session) -> session
+//                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.authorizeHttpRequests((auth) -> auth
-                        .requestMatchers(new AntPathRequestMatcher(" /users/status/check")).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/**"))
-                        .access((authentication, context) -> {
-                            if(hasIpAddress.matches(context.getRequest()))
-                                return new AuthorizationDecision(
-                                        hasIpAddress.matches(context.getRequest()));
-                            return new AuthorizationDecision(
-                                    hasIpv4Address.matches(context.getRequest()));
-                        }))
+                        .requestMatchers(new AntPathRequestMatcher("/users/**")).permitAll())
+                .csrf(AbstractHttpConfigurer::disable)
                 .addFilter(authenticationFilter)
                 .authenticationManager(authenticationManager)
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
         return http.build();
     }
 }

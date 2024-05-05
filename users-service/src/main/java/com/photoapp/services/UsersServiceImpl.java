@@ -3,6 +3,7 @@ package com.photoapp.services;
 import com.photoapp.model.UserDto;
 import com.photoapp.model.UserEntity;
 import com.photoapp.repository.UserRepository;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -32,7 +33,7 @@ public class UsersServiceImpl implements UsersService {
         UserEntity userEntity = modelMapper.map(userDetails, UserEntity.class);
 
         repository.save(userEntity);
-
+        
         UserDto returnValue = modelMapper.map(userEntity, UserDto.class);
 
         return returnValue;
